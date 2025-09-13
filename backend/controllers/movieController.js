@@ -5,9 +5,11 @@ const Review = require('../models/Review');
 exports.getAllMovies = async (req, res) => {
   try {
     const movies = await Movie.find();
+    // Always return an array, even if it's empty
     res.json(movies);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    // Return a consistent response in case of error
+    res.status(500).json({ message: err.message, movies: [] });
   }
 };
 
@@ -20,6 +22,7 @@ exports.getMovieById = async (req, res) => {
     }
     res.json(movie);
   } catch (err) {
+    // Catch-all for server errors
     res.status(500).json({ message: err.message });
   }
 };
@@ -31,6 +34,7 @@ exports.addMovie = async (req, res) => {
     const newMovie = await movie.save();
     res.status(201).json(newMovie);
   } catch (err) {
+    // Return a 400 for bad requests (e.g., duplicate title)
     res.status(400).json({ message: err.message });
   }
 };
@@ -39,7 +43,7 @@ exports.addMovie = async (req, res) => {
 exports.submitReview = async (req, res) => {
   const { rating, reviewText } = req.body;
   const { id } = req.params;
-  const userId = req.user.id; // Get user ID from the auth middleware
+  const userId = req.user.id;
 
   try {
     const movie = await Movie.findById(id);
@@ -68,6 +72,7 @@ exports.submitReview = async (req, res) => {
 
     res.status(201).json(review);
   } catch (err) {
+    // Server-side error handling
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
